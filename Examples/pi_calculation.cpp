@@ -1,17 +1,20 @@
-// CPP Program to find sum of array 
+// CPP Program to calculate PI using Leibniz equation
 #include <pthread.h>
 #include <math.h>
 #include <time.h>
-#include <stdio.h> 
+#include <iostream>
+#include <chrono> 
 
-#define MAX 1000000			// size of array 
-#define N_THREADS 2			// maximum number of threads 
+#define MAX 1000000000			// Number of iterations for leibniz calculation 
+#define N_THREADS 8				// Maximum number of threads 
 
-float sum[N_THREADS] = { 0 }; 
+using namespace std::chrono; 
+
+double sum[N_THREADS] = { 0 }; 
 int part = 0; 
 
 void* leibniz_calculation(void* arg) { 
-	// Each thread computes sum of 1/4th of array 
+	// Each thread computes sum of 1/N_TREADS iterations
 	int thread_part = part++; 
 
 	for (int k = thread_part * (MAX / N_THREADS); k < (thread_part + 1) * (MAX / N_THREADS); k++) 
@@ -21,23 +24,26 @@ void* leibniz_calculation(void* arg) {
 // Driver Code 
 int main(){ 
 	pthread_t threads[N_THREADS];
-	clock_t t0 = clock(); 
+	auto start = high_resolution_clock::now();
 
-	// Creating 4 threads 
+	// Creating N_THREADS threads 
 	for (int i = 0; i < N_THREADS; i++) 
 		pthread_create(&threads[i], NULL, leibniz_calculation, (void*)NULL); 
 
-	// joining 4 threads i.e. waiting for all 4 threads to complete 
+	// joining N_THREADS threads i.e. waiting for all 4 threads to complete 
 	for (int i = 0; i < N_THREADS; i++) 
 		pthread_join(threads[i], NULL); 
 
-	// adding sum of all 4 parts 
-	float total_sum = 0; 
+	// adding sum of all N_THREADS parts 
+	double total_sum = 0; 
 	for (int i = 0; i < N_THREADS; i++) 
 		total_sum += sum[i]; 
 
-	printf("Pi calculation = %f\n", 4 * total_sum); 
-	printf("Time taken: %.2fs\n", (double)(clock() - t0)/CLOCKS_PER_SEC);
+	printf("Pi calculation = %f\n", 4 * total_sum);
+	auto stop = high_resolution_clock::now();
+	auto duration = duration_cast<microseconds>(stop - start); 
+
+	std::cout << "Time taken: " << duration.count() * 1e-6 << " sec" << std::endl;
 
 	return 0; 
 } 
