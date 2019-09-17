@@ -5,9 +5,9 @@
 
 using namespace std;
 
-float* linear_forward(float*, float*);
-float* sigmoid(float*);
-float* relu(float*);
+double* linear_forward(double*, double*);
+double* sigmoid(double*);
+double* relu(double*);
 
 class NeuralNetwork{
 	int num_layers;
@@ -27,18 +27,18 @@ class NeuralNetwork{
 			training_samples = training_samples;
 		}
 
-		vector<float*> initialize_weights();
-		float* forward_propagate(float*, float*	);
-		float cost(float*, float*)
+		vector<double*> initialize_weights();
+		double* forward_propagate(double*, double*);
+		double cost(double*, double*)
 };	
 
-vector<float*> NeuralNetwork::initialize_weights(){
+vector<double*> NeuralNetwork::initialize_weights(){
 	default_random_engine generator;
   	normal_distribution<double> distribution(0.0,1.0);
 
-	vector<float*> W;
+	vector<double*> W;
 	
-	float* W0 = new float[input_size * hidden_layers[0]];
+	double* W0 = new double[input_size * hidden_layers[0]];
 	for(int i = 0; i < input_size * hidden_layers[0]; ++i){
 		double r = distribution(generator);
 		double bound = sqrt(1.0 / (input_size + hidden_layers[0]));
@@ -47,7 +47,7 @@ vector<float*> NeuralNetwork::initialize_weights(){
 	W.push_back(W0);
 
 	for(int l = 1; l < num_layers; ++l){
-		float* Wl = new float[hidden_layers[l-1] * hidden_layers[l]];
+		double* Wl = new double[hidden_layers[l-1] * hidden_layers[l]];
 		for(int i = 0; i < hidden_layers[l-1] * hidden_layers[l]; ++i){
 			double r = distribution(generator);
 			double bound = sqrt(1.0 / (hidden_layers[l] + hidden_layers[l-1]));
@@ -56,7 +56,7 @@ vector<float*> NeuralNetwork::initialize_weights(){
 		W.push_back(Wl)
 	}
 
-	float* WL = new float[output_size * hidden_layers[num_layers-1]];
+	double* WL = new double[output_size * hidden_layers[num_layers-1]];
 	for(int i = 0; i < output_size * hidden_layers[num_layers-1]; ++i){
 		double r = distribution(generator);
 		double bound = sqrt(1.0 / (output_size + hidden_layers[num_layers-1]));
@@ -67,8 +67,8 @@ vector<float*> NeuralNetwork::initialize_weights(){
 	return W;
 }
 
-float* NeuralNetwork::forward_propagate(float* input_layer, float* W){
-	float* A_prev, A, Z;
+double* NeuralNetwork::forward_propagate(double* input_layer, double* W){
+	double* A_prev, A, Z;
 	int current_size = training_samples * hidden_layers[0];
 	Z = linear_forward(input_layer, W[0], training_samples, input_size, hidden_layers[0]);
 	if(activations[0] == "sigmoid")
@@ -76,8 +76,22 @@ float* NeuralNetwork::forward_propagate(float* input_layer, float* W){
 
 	for (int l = 1; l < num_layers; ++l){
 		A_prev = A;
-		
+		current_size = training_samples * hidden_layers[l];
+		Z = linear_forward(A_prev, W[l], training_samples, hidden_layers[l-1], hidden_layers[l]);
+		if(activations[0] == "sigmoid")
+			A = sigmoid(Z, current_size);
 	}
+
+	A_prev = A;
+	current_size = training_samples * output_size;
+	Z = linear_forward(A_prev, W[l], training_samples, hidden_layers[num_layers-1], output_size);
+	if(activations[0] == "sigmoid")
+		A = sigmoid(Z, current_size);
+	return A;
+}
+
+double cost(double* AL, double* Y){
+	return 0;
 }
 
 int main(){
@@ -85,8 +99,8 @@ int main(){
 }
 
 
-float* linear_forward(float* A_prev, float* W, int m, int p, int n){
-	float* Z = new float[m * n];
+double* linear_forward(double* A_prev, double* W, int m, int p, int n){
+	double* Z = new double[m * n];
 	for(int i = 0; i < m; i++){
 		for (int j = 0; j < n; j++){
 			Z[i*(p + 1) + j] = 0;
@@ -97,8 +111,8 @@ float* linear_forward(float* A_prev, float* W, int m, int p, int n){
 	return Z;
 }
 
-float* sigmoid(float* Z, int size){
-	float* A = new float[size];
+double* sigmoid(double* Z, int size){
+	double* A = new double[size];
 	for(int i = 0; i < size; ++i)
 		A[i] = 1.0 / (1 + exp(-Z[i]));
 	return A;
