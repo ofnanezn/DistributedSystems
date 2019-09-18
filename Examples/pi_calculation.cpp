@@ -5,7 +5,7 @@
 #include <iostream>
 #include <chrono> 
 
-#define MAX 1000000000			// Number of iterations for leibniz calculation 
+#define MAX 10000000			// Number of iterations for leibniz calculation 
 #define N_THREADS 8				// Maximum number of threads 
 
 using namespace std::chrono; 

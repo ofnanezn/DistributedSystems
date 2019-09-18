@@ -14,5 +14,5 @@ class Individual{
 			W = W;
 			fitness = fitness;
 			activations = activations;
-		}	
+		}
 };
