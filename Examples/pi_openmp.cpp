@@ -4,8 +4,8 @@
 #include <iomanip>
 #include <iostream>
 
-#define MAX 10000000000           // Number of iterations for leibniz calculation 
-#define N_THREADS 16               // Maximum number of threads 
+#define MAX 1000000000           // Number of iterations for leibniz calculation 
+#define N_THREADS 32               // Maximum number of threads 
 
 using namespace std; 
  
