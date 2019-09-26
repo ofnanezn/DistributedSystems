@@ -16,3 +16,5 @@ class Individual{
 			activations = activations;
 		}
 };
+//Esto esá mal
+//Corregir
