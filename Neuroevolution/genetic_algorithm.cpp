@@ -6,7 +6,7 @@
 using namespace std;
 
 class GeneticAlgorithm{
-	int pop_size;
+	int pop_size
 
 	public:
 		GeneticAlgorithm(int pop_size){
