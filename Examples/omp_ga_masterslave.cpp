@@ -4,8 +4,10 @@
 #include <vector>
 #include <random>
 #include <ctime>
-#include <utility> 
+#include <utility>
+#include "omp.h"
 
+#define N_THREADS 1
 
 using namespace std;
 
@@ -156,10 +158,9 @@ void mutation(Individual *child, int n){
 }
 
 
-pair<Individual, Individual> steady_state(vector<Individual> pool){
+Individual steady_state(vector<Individual> pool){
 	sort(pool.begin(), pool.end(), compare_fitness);
-	pair<Individual, Individual> new_gen(pool[0], pool[1]);
-	return new_gen;
+	return pool[0];
 }
 
 
@@ -169,43 +170,51 @@ void print_best(vector<Individual> pop){
 		if(ind.fitness < min)
 			min = ind.fitness;
 
-	cout << "Fitness of  best individual: " << min << endl;
+	cout << "Fitness of best individual: " << min << endl;
 }
 
 
 int main(){
 	srand(time(0));
 
-	int n = 10, parents_size = 20;
-	int A = 10.0, P = 100, T = 2000;
+	int n = 10, parents_size = 2000;
+	int A = 10.0, P = 500000, T = 50;
 	double lim_min = -5.12, lim_max = 5.12;
 
-	vector<Individual> new_pop, parents, pop = initialize_population(n, P, lim_max, lim_min);
+	vector<Individual> parents, new_pop, pop = initialize_population(n, P, lim_max, lim_min);
+	new_pop = pop;
 
-	for(Individual &ind: pop)
-		ind.calculate_fitness(A);
+	#pragma omp parallel for num_threads(N_THREADS)
+		for(int i = 0; i < P; ++i){
+			pop[i].calculate_fitness(A);
+		}
 
 	for(int t = 1; t <= T; ++t){
-		parents = rank_selection(pop, parents_size);
+		//parents = rank_selection(pop, parents_size);
 
-		for(int i = 0; i < (int)(P / 2); ++i){
-			Individual parent1 = parents[rand() % parents_size];
-			Individual parent2 = parents[rand() % parents_size];
+		#pragma omp parallel for num_threads(N_THREADS)
+			for(int i = 0; i < P; ++i){
+				Individual parent1 = pop[i];
+				Individual parent2 = pop[rand() % P];
 
-			pair<Individual, Individual> offspring = crossover(parent1, parent2, n);			
-			Individual child1 = offspring.first;
-			Individual child2 = offspring.second;
+				pair<Individual, Individual> offspring = crossover(parent1, parent2, n);			
+				Individual child1 = offspring.first;
+				Individual child2 = offspring.second;
 
-			mutation(&child1, n); mutation(&child2, n);
-			child1.calculate_fitness(A); child2.calculate_fitness(A);
+				mutation(&child1, n); mutation(&child2, n);
+				child1.calculate_fitness(A); child2.calculate_fitness(A);
 
-			vector<Individual> pool {parent1, parent2, child1, child2};
+				vector<Individual> pool {parent1, parent2, child1, child2};
 
-			pair<Individual, Individual> new_gen = steady_state(pool);
+				Individual new_gen = steady_state(pool);
 
-			new_pop.push_back(new_gen.first);
-			new_pop.push_back(new_gen.second);
-		}
+				new_pop[i] = new_gen;
+				//#pragma omp critical
+				//{
+					//new_pop.push_back(new_gen.first);
+					//new_pop.push_back(new_gen.second);
+				//}
+			}
 
 		pop = new_pop;
 
@@ -214,7 +223,7 @@ int main(){
 			print_best(pop);
 		}
 
-		new_pop.clear();
+		// /new_pop.clear();
 	}
 
 	pop.clear();

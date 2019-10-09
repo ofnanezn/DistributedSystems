@@ -18,7 +18,7 @@ class NeuralNetwork{
 	int training_samples;
 
 	public:
-		neural_network(int num_layers, int input_size, int output_size, int* hidden_layers, string* activations, int training_samples){
+		NeuralNetwork(int num_layers, int input_size, int output_size, int* hidden_layers, string* activations, int training_samples){
 			num_layers = num_layers;
 			hidden_layers = hidden_layers;
 			activations = activations;
@@ -28,8 +28,8 @@ class NeuralNetwork{
 		}
 
 		vector<double*> initialize_weights();
-		double* forward_propagate(double*, double*);
-		double cost(double*, double*)
+		double* forward_propagate(double*, vector<double*>);
+		//double cost(double*, double*);
 };	
 
 vector<double*> NeuralNetwork::initialize_weights(){
@@ -53,7 +53,7 @@ vector<double*> NeuralNetwork::initialize_weights(){
 			double bound = sqrt(1.0 / (hidden_layers[l] + hidden_layers[l-1]));
 			Wl[i] = r * bound;
 		}
-		W.push_back(Wl)
+		W.push_back(Wl);
 	}
 
 	double* WL = new double[output_size * hidden_layers[num_layers-1]];
@@ -67,7 +67,7 @@ vector<double*> NeuralNetwork::initialize_weights(){
 	return W;
 }
 
-double* NeuralNetwork::forward_propagate(double* input_layer, double* W){
+double* NeuralNetwork::forward_propagate(double* input_layer, vector<double*> W){
 	double* A_prev, A, Z;
 	int current_size = training_samples * hidden_layers[0];
 	Z = linear_forward(input_layer, W[0], training_samples, input_size, hidden_layers[0]);
@@ -90,12 +90,25 @@ double* NeuralNetwork::forward_propagate(double* input_layer, double* W){
 	return A;
 }
 
-double cost(double* AL, double* Y){
+double NeuralNetwork::cost(double* AL, double* Y){
 	return 0;
 }
 
 int main(){
-	int num_layers = 4;
+	int num_layers = 1, input_size = 2, output_size = 1, training_samples = 4;
+	int *hidden_layers = new int[1];
+	hidden_layers[0] = 2;
+	string *activations = new string[2];
+	activations[0] = "sigmoid";
+	activations[1] = "sigmoid";
+
+	vector<double*> W;
+
+	NeuralNetwork nn(num_layers, input_size, output_size, hidden_layers, activations, training_samples);
+	W = nn.initialize_weights();
+	for(int i = 0; i < input_size * hidden_layers[0]; ++i){
+		cout << W[i] << endl;
+	}
 }
 
 
