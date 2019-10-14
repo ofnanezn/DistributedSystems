@@ -7,7 +7,7 @@
 #include <utility>
 #include "omp.h"
 
-#define N_THREADS 1
+#define N_THREADS 16
 
 using namespace std;
 
@@ -50,6 +50,7 @@ Individual::Individual(double* chromosome, double fitness, int dims)
 
 
 Individual::Individual(const Individual& ind){
+
 	dims = ind.dims;
 	fitness = ind.fitness;
 	
@@ -158,9 +159,11 @@ void mutation(Individual *child, int n){
 }
 
 
-Individual steady_state(vector<Individual> pool){
-	sort(pool.begin(), pool.end(), compare_fitness);
-	return pool[0];
+Individual steady_state(vector<Individual> &pool){
+	Individual best = pool[0];
+	for(int i = 1; i < pool.size(); ++i)
+		if(pool[i].fitness < best.fitness){ best = pool[i]; }
+	return best;
 }
 
 
@@ -178,7 +181,7 @@ int main(){
 	srand(time(0));
 
 	int n = 10, parents_size = 2000;
-	int A = 10.0, P = 500000, T = 50;
+	int A = 10.0, P = 200000, T = 50;
 	double lim_min = -5.12, lim_max = 5.12;
 
 	vector<Individual> parents, new_pop, pop = initialize_population(n, P, lim_max, lim_min);
@@ -209,13 +212,10 @@ int main(){
 				Individual new_gen = steady_state(pool);
 
 				new_pop[i] = new_gen;
-				//#pragma omp critical
-				//{
-					//new_pop.push_back(new_gen.first);
-					//new_pop.push_back(new_gen.second);
-				//}
+				pool.clear();
 			}
 
+		//pop.clear();
 		pop = new_pop;
 
 		if(t % 10 == 0){

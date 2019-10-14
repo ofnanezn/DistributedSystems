@@ -2,11 +2,10 @@
 #include <vector>
 #include <math.h>
 #include <random>
-#include <python>
 
 using namespace std;
 
-double* linear_forward(double*, double*);
+double* linear_forward(double*, vector<double*>, int, int, int);
 double* sigmoid(double*);
 double* relu(double*);
 
