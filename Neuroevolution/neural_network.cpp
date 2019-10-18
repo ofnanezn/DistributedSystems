@@ -2,11 +2,11 @@
 #include <vector>
 #include <math.h>
 #include <random>
-
+	
 using namespace std;
 
 double* linear_forward(double*, vector<double*>, int, int, int);
-double* sigmoid(double*);
+double* sigmoid(double*, int);
 double* relu(double*);
 
 class NeuralNetwork{
@@ -68,7 +68,7 @@ vector<double*> NeuralNetwork::initialize_weights(){
 }
 
 double* NeuralNetwork::forward_propagate(double* input_layer, vector<double*> W){
-	double* A_prev, A, Z;
+	double *A_prev, *A, *Z;
 	int current_size = training_samples * hidden_layers[0];
 	Z = linear_forward(input_layer, W[0], training_samples, input_size, hidden_layers[0]);
 	if(activations[0] == "sigmoid")

@@ -7,7 +7,7 @@
 #include <utility>
 #include "omp.h"
 
-#define N_THREADS 16
+#define N_THREADS 1
 
 using namespace std;
 
@@ -180,8 +180,8 @@ void print_best(vector<Individual> pop){
 int main(){
 	srand(time(0));
 
-	int n = 10, parents_size = 2000;
-	int A = 10.0, P = 200000, T = 50;
+	int n = 50, parents_size = 2000;
+	int A = 10.0, P = 50000, T = 50;
 	double lim_min = -5.12, lim_max = 5.12;
 
 	vector<Individual> parents, new_pop, pop = initialize_population(n, P, lim_max, lim_min);
