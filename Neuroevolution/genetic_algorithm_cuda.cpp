@@ -11,12 +11,12 @@
   
 /*******************************************************************************/
 __global__ void initialize_pop(float *total_pop, int num_elements){
-    int i = blockDim.x * blockIdx.x + threadIdx.x;
-    if(i < num_elements){
-        curandState state;
+	int i = blockDim.x * blockIdx.x + threadIdx.x;
+	if(i < num_elements){
+		curandState state;
         curand_init(clock64(), i, 0, &state);
         total_pop[i] = curand_uniform(&state);
-    }
+	}
 }
 
 
@@ -24,11 +24,11 @@ __global__ void calculate_fitness(const float *total_pop, float *total_fitness, 
     int i = blockDim.x * blockIdx.x + threadIdx.x;
 
     if (i < num_elements){
-        total_fitness[i] = 10.0 * dims;
+    	total_fitness[i] = 10.0 * dims;
 
-        for(int j = i * dims; j < i * (dims + 1); ++j)
-            total_fitness[i] += (total_pop[j]*total_pop[j] - 10 * cos(2.0 * PI * total_pop[j]));
-    }   
+  		for(int j = i * dims; j < i * (dims + 1); ++j)
+  			total_fitness[i] += (total_pop[j]*total_pop[j] - 10 * cos(2.0 * PI * total_pop[j]));
+    }	
 }
 
 
@@ -89,7 +89,7 @@ __global__ void individual_evolution(float *total_pop, float *total_fitness, flo
         new_pop[k] = total_pop[k];
       }
     }
-  } 
+  }	
 }
 
 
@@ -98,7 +98,7 @@ int main(void){
   // Error code to check return values for CUDA calls
   cudaError_t err = cudaSuccess;
   int T = 50;
-  int dims = 10, pop_size = 10000;
+  int dims = 100, pop_size = 10000;
 
   /******************************** 
   Population initialization
@@ -284,8 +284,12 @@ int main(void){
     h_total_pop = h_new_pop;
   }
 
+  double best = 10000000;
   for (int i = 0; i < 1000; ++i)
-    printf("%f\n", h_total_fitness[i]);
+    if(h_total_fitness[i] < best)
+      best = h_total_fitness[i];
+
+  printf("Best: %f\n", best);
 
   /******************************** 
   Free memory
